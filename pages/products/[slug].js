@@ -1,7 +1,9 @@
-import CustomButton from "@/components/CustomButton";
+import { useContext, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import Layout from "@/components/Layout";
 import { CartContext } from "context/CartContext";
-import { useContext, useState } from "react";
 
 const SingleProduct = ({ product }) => {
   const [quantity, setQuantity] = useState(1);
@@ -17,13 +19,16 @@ const SingleProduct = ({ product }) => {
       id: product.slug,
       name: product.title,
       price: product.price,
+      image: `http://localhost:1337${product.productImage.data[0].attributes.url}`,
       quantity,
     };
     addToCart(item);
+    toast.success("Added To Cart");
   };
 
   return (
     <Layout>
+      <ToastContainer autoClose={2000} />
       <section className="text-gray-600 body-font overflow-hidden">
         <div className="container px-5 py-24 mx-auto">
           <div className="lg:w-4/5 mx-auto flex flex-wrap">
