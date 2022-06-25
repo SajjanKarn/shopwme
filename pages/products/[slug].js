@@ -1,11 +1,25 @@
 import CustomButton from "@/components/CustomButton";
 import Layout from "@/components/Layout";
+import { CartContext } from "context/CartContext";
+import { useContext, useState } from "react";
 
 const SingleProduct = ({ product }) => {
-  console.log(product);
+  const [quantity, setQuantity] = useState(1);
+  const { addToCart } = useContext(CartContext);
+
   const rating = {
     fullStar: Math.floor(product.rating),
     emptyStar: 5 - Math.floor(product.rating),
+  };
+
+  const pushToCart = () => {
+    const item = {
+      id: product.slug,
+      name: product.title,
+      price: product.price,
+      quantity,
+    };
+    addToCart(item);
   };
 
   return (
@@ -27,39 +41,6 @@ const SingleProduct = ({ product }) => {
               </h1>
               <div className="flex mb-4">
                 <span className="flex items-center">
-                  {/* <svg
-                    fill="currentColor"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    className="w-4 h-4 text-pink-500"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-                  </svg>
-                  <svg
-                    fill="currentColor"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    className="w-4 h-4 text-pink-500"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-                  </svg>
-                  <svg
-                    fill="currentColor"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    className="w-4 h-4 text-pink-500"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-                  </svg> */}
                   {[...Array(rating.fullStar)].map((rat, index) => (
                     <svg
                       key={index}
@@ -164,8 +145,24 @@ const SingleProduct = ({ product }) => {
                       </svg>
                     </span>
                   </div>
+                  <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+                    <label
+                      class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                      for="grid-zip"
+                    >
+                      Quantity
+                    </label>
+                    <input
+                      class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                      id="grid-zip"
+                      type="number"
+                      value={quantity}
+                      onChange={(e) => setQuantity(e.target.value)}
+                    />
+                  </div>
                 </div>
               </div>
+
               <div className="flex">
                 <span className="title-font font-medium text-2xl text-gray-900">
                   $
@@ -173,7 +170,10 @@ const SingleProduct = ({ product }) => {
                     .toString()
                     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                 </span>
-                <button className="flex ml-auto text-white bg-pink-500 border-0 py-2 px-6 focus:outline-none hover:bg-pink-600 rounded">
+                <button
+                  className="flex ml-auto text-white bg-pink-500 border-0 py-2 px-6 focus:outline-none hover:bg-pink-600 rounded"
+                  onClick={pushToCart}
+                >
                   Add To Cart
                 </button>
                 <button className="rounded-full w-10 h-10 bg-gray-200 p-0 border-0 inline-flex items-center justify-center text-gray-500 ml-4">
@@ -202,6 +202,7 @@ export async function getServerSideProps({ params: { slug } }) {
     `http://localhost:1337/api/products?filters[slug][$eq]=${slug}&&populate=*`
   );
   const { data } = await res.json();
+
   return {
     props: {
       product: data[0].attributes,
